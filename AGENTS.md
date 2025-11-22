@@ -1,0 +1,45 @@
+GCC: version 12 or later
+Clang: version 19 or later
+
+To compile the default predictor:
+./compile cbp
+
+To compile a specific predictor:
+./compile cbp -DPREDICTOR="gshare<>"
+
+To simulate one trace with 1M instructions of warmup and up to 40M instructions
+of measurement:
+./cbp ./gcc_test_trace.gz test 10000000 40000000
+or:
+./run ./cbp ./gcc_test_trace.gz
+
+The simulation output per traces is:
+(1) trace name, (2) instructions, (3) branches, (4) conditional branches, (5) blocks, (6) extra cycles, (7) P1/P2 divergences, (8) P2 mispredictions, (9) P1 latency (cycles), (10) P2 latency (cycles), (11) dynamic energy per instruction (fJ)
+
+To simulate all "compress" traces:
+mkdir OUTDIR
+./run_all ./cbp cbp6_traces/compress OUTDIR
+
+To simulate all traces:
+./run_all ./cbp cbp6_traces OUTDIR
+
+To compute the number of mispredictions per instruction:
+./ratio 2 8 OUTDIR
+
+To compute the average IPC, CPI, EPI, and other average metrics:
+./predictor_metrics.py OUTDIR
+
+====================================================================================
+Reference TAGE-SC-L predictor (no timing, no energy):
+
+To compile:
+g++ -o reference -O3 reference.cpp -lz
+
+To run one trace:
+./reference cbp6_traces/compress/compress_0_trace.gz compress_0 0 10000000
+or
+./run ./reference cbp6_traces/compress/compress_0_trace.gz
+
+To simulate all traces:
+./run_all ./reference cbp6_traces OUTDIR
+====================================================================================
