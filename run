@@ -1,12 +1,16 @@
 #!/bin/bash
+set -euo pipefail
+
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+    echo "Usage: $0 EXEC TRACEFILE [OUTDIR]" >&2
+    exit 1
+fi
 
 EXEC="$1"
 TRACEFILE="$2"
-OUTDIR="$3"
+OUTDIR="${3:-.}"
 
-if [ "$OUTDIR" == "" ]; then
-    OUTDIR="."
-fi
+mkdir -p "$OUTDIR"
 
 WARMINST=1000000
 SIMINST=40000000
@@ -15,4 +19,4 @@ FILENAME=$(basename "$TRACEFILE")
 FILENAME="${FILENAME%.*}"
 NAME="${FILENAME%_trace}"
 
-$EXEC $TRACEFILE $NAME $WARMINST $SIMINST > $OUTDIR/$NAME.out
+"$EXEC" "$TRACEFILE" "$NAME" "$WARMINST" "$SIMINST" > "$OUTDIR/$NAME.out"

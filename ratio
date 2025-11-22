@@ -1,7 +1,29 @@
 #!/bin/bash
+set -euo pipefail
 
-COL1=$1
-COL2=$2
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 COL1 COL2 RESDIR" >&2
+    exit 1
+fi
+
+COL1="$1"
+COL2="$2"
 RESDIR="$3"
 
-cat $RESDIR/*.out | awk -v COL1=$COL1 -v COL2=$COL2 -F',' '{printf "%-12s %12s %12s %12.5f\n",$1,$COL1,$COL2,$COL2/$COL1}'
+if [[ ! -d "$RESDIR" ]]; then
+    echo "Results directory '$RESDIR' does not exist" >&2
+    exit 1
+fi
+
+shopt -s nullglob
+files=("$RESDIR"/*.out)
+shopt -u nullglob
+
+if [[ ${#files[@]} -eq 0 ]]; then
+    echo "No .out files found in '$RESDIR'" >&2
+    exit 1
+fi
+
+awk -v COL1="$COL1" -v COL2="$COL2" -F',' \
+    '{printf "%-12s %12s %12s %12.5f\n",$1,COL1,COL2,COL2/$COL1}' \
+    "${files[@]}"
