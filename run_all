@@ -1,8 +1,21 @@
 #!/bin/bash
+set -euo pipefail
+
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 EXEC TRACEDIR OUTDIR" >&2
+    exit 1
+fi
 
 EXEC="$1"
 TRACEDIR="$2"
 OUTDIR="$3"
 
-mkdir -p ${OUTDIR}
-find "$TRACEDIR/" -name "*_trace.gz" | parallel -j 16 --use-cores-instead-of-threads ./run $EXEC {} "$OUTDIR"
+if [[ ! -d "$TRACEDIR" ]]; then
+    echo "Trace directory '$TRACEDIR' does not exist" >&2
+    exit 1
+fi
+
+mkdir -p "$OUTDIR"
+
+find "$TRACEDIR" -type f -name "*_trace.gz" -print0 \
+  | parallel -0 -j 16 --use-cores-instead-of-threads ./run "$EXEC" {} "$OUTDIR"

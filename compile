@@ -1,19 +1,25 @@
 #!/bin/bash
+set -euo pipefail
 
-FILE=$1
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 SOURCE_FILE [EXTRA_FLAGS...]" >&2
+    exit 1
+fi
+
+FILE="$1"
 shift
-EXTRA=$@
+EXTRA=("$@")
 
 NAME="${FILE%.*}"
 
-if [ "$NAME" == "$FILE" ]; then
+if [[ "$NAME" == "$FILE" ]]; then
     FILE="${FILE}.cpp"
 fi
 
-COMPILE="g++ -std=c++20"
+COMPILE=(g++ -std=c++20)
 OPT="-O3"
-FLAGS="-Wall -Wextra -pedantic -Wold-style-cast -Werror -Wno-deprecated-declarations -Wno-mismatched-tags"
+FLAGS=(-Wall -Wextra -pedantic -Wold-style-cast -Werror -Wno-deprecated-declarations -Wno-mismatched-tags)
 
 set -x
 
-$COMPILE -o $NAME $FILE -lz $OPT $FLAGS $EXTRA
+"${COMPILE[@]}" -o "$NAME" "$FILE" -lz "$OPT" "${FLAGS[@]}" "${EXTRA[@]}"
